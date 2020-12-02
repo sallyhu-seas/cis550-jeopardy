@@ -1,0 +1,32 @@
+.header-custom {
+    position: relative;
+    box-sizing: $border-box;
+    font-size: $font-size-header;
+    background-color: $white;
+    border: $border-header-title;
+}
+
+.title-caption{
+    width: $width-full;
+    height: $height-30;
+    line-height: $height-30;
+    position: relative;
+    padding: $padding-0-10-0-10;
+    margin: $margin-2-0-4-1;
+    box-sizing: $border-box;
+    margin-left: $margin-left-2;
+    font-size: $font-size-14;
+}
+
+.caption{
+    color: rgb(89, 112, 153);
+    font-weight: $font-weight-600;
+    font-size: $font-size-14;
+    text-align: center;
+    box-sizing: $border-box;
+    background-color: $white;
+    border: $border-header-title;
+}
+.background{
+    background-color: $white;
+}

@@ -1,0 +1,122 @@
+//
+// Input group
+//
+
+// lamvn edit begin
+
+.form-control {
+  height: $input-height-30;
+  font-size: $input-font-size-13;
+  border-radius: 4px;
+}
+
+.form-control:focus {
+  border-color: $input-focus-border-color;
+}
+
+.input-group-text {
+  border-radius: 0;
+  height: $input-height-30;
+}
+
+.form-control-search {
+  border-radius: 3px;
+  background-color: #f0f0f0;
+}
+
+.form-control-search ~ .input-group-append > .input-group-text {
+  background-color: #f0f0f0;
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+
+.focused {
+  .input-group-text {
+    border-color: $input-focus-border-color !important;
+    background-color: #fff !important;
+  }
+}
+
+.has-success > .input-group-prepend > .input-group-text {
+  border-color: $green;
+}
+
+.has-danger > .input-group-append > .input-group-text {
+  border-color: $orange;
+}
+
+.select-custom {
+  width: $input-width-100;
+}
+
+.select-custom .el-input__inner {
+  height: $input-height-30;
+}
+
+.el-input {
+  font-size: $input-font-size-13;
+}
+
+.el-input__icon {
+  line-height: $input-height-30;
+}
+
+.rounded-0 {
+  .input-group-text,
+  input {
+    border-radius: 0;
+  }
+}
+
+.select-custom .el-input {
+  height: $input-height-30;
+
+  input {
+    height: $input-height-30 !important;
+  }
+}
+
+.select-custom .el-select__caret {
+  line-height: $input-height-30;
+}
+
+.el-autocomplete input {
+  height: $input-height-30;
+}
+
+.input-group-text {
+  border-radius: 4px;
+}
+
+.custom-radio .custom-control-input ~ .custom-control-label {
+  font-size: $input-font-size-13;
+}
+
+.select-custom {
+  .el-select__tags {
+    height: $height-30;
+    overflow: auto;
+  }
+}
+
+.btn-action-custom {
+  width: 18px;
+  height: 18px;
+  margin-right: 0 !important;
+}
+
+.icon-upload > input {
+  display: none;
+}
+
+.icon-upload-file {
+  cursor: pointer;
+}
+
+.el-input__inner {
+  line-height: 31px !important;
+}
+
+.color-white {
+  color: white;
+}

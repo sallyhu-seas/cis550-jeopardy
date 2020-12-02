@@ -1,0 +1,10 @@
+//
+// Form validation
+//
+
+// Validation
+
+.has-success:after, .has-danger:after{
+    content: "" !important;
+    background-color: unset;
+}
