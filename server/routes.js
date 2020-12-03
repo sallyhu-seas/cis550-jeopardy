@@ -150,35 +150,6 @@ async function getDatabase(req, res) {
   }
 }
 
-async function getSeasons(req, res) {
-  let connection;
-  connection = await oracledb.getConnection(config);
-
-  var query = `
-    SELECT DISTINCT SEASON
-    FROM JEOPARDY_SHOW
-    ORDER BY SEASON DESC`;
-  try {
-    const result = await connection.execute(query, [], {
-      outFormat: oracledb.OUT_FORMAT_OBJECT,
-    });
-
-    let data = [];
-    for (let i = 0; i < result.rows.length; i++) {
-      data.push({
-        season: result.rows[i].SEASON,
-      });
-    }
-
-    var obj = {};
-    obj.list = data;
-
-    res.json(obj);
-  } catch (err) {
-    console.error(err);
-  }
-}
-
 async function getAirDates(req, res) {
   var season = req.query.season;
   let connection;
