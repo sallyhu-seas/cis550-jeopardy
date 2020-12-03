@@ -90,7 +90,7 @@ async function getDatabase(req, res) {
     query += ` AND js.SEASON = '${season}'`;
 
   if (airDate != null && airDate != undefined)
-    query += ` AND TO_CHAR(js.AIRDATE, 'dd/MM/yyyy') = '${airDate}'`;
+    query += ` AND TO_CHAR(js.AIRDATE, 'MM/dd/yyyy') = '${airDate}'`;
 
   if (isWinner != null && isWinner != undefined)
     query += ` AND cp.ISWINNER = '${isWinner}'`;
@@ -113,7 +113,7 @@ async function getDatabase(req, res) {
     queryCount += ` AND js.SEASON = '${season}'`;
 
   if (airDate != null && airDate != undefined)
-    queryCount += ` AND TO_CHAR(js.AIRDATE, 'dd/MM/yyyy') = '${airDate}'`;
+    queryCount += ` AND TO_CHAR(js.AIRDATE, 'MM/dd/yyyy') = '${airDate}'`;
 
   if (isWinner != null && isWinner != undefined)
     queryCount += ` AND cp.ISWINNER = '${isWinner}'`;
@@ -307,7 +307,7 @@ async function getTopWinnersFromTopOccupations(req, res) {
   connection = await oracledb.getConnection(config);
 
   var query = `
-WITH top_occupations AS (
+        WITH top_occupations AS (
             SELECT  *
             FROM    (   SELECT  occupation
                                 ,COUNT(DISTINCT c.cid) as numOcc
@@ -376,7 +376,7 @@ async function getDaysBetweenFirstLossAndFirstWin(req, res) {
 
   var query = `
       WITH combine AS(
-          SELECT  DISTINCT c.cid
+          SELECT  c.cid
                   ,c.name
                   ,iswinner
                   ,js.airdate 
@@ -402,12 +402,14 @@ async function getDaysBetweenFirstLossAndFirstWin(req, res) {
           GROUP BY cid
                   ,name
       )
-      SELECT  c2.name
-              ,first_win - first_loss AS datediff
-      FROM    first_loss c2
-              INNER JOIN first_win c3 ON c2.cid = c3.cid
-      WHERE ROWNUM <= 100
-      ORDER BY datediff DESC
+      SELECT    *
+      FROM      (SELECT  c2.name
+                          ,first_win - first_loss AS datediff
+                  FROM    first_loss c2
+                          INNER JOIN first_win c3 ON c2.cid = c3.cid
+                  ORDER BY datediff DESC
+                )
+      WHERE       ROWNUM <= 20
       `;
 
   try {
