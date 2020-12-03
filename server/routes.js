@@ -2,8 +2,8 @@ var config = require("./db-config.js");
 var oracledb = require("oracledb");
 
 oracledb.initOracleClient({
-  libDir: '/Users/datnguyen/Project550/instantclient_19_8' // Dat's path
-  // libDir: 'C:\\Oracle\\instantclient_19_8' // Sally's path
+  // libDir: '/Users/datnguyen/Project550/instantclient_19_8' // Dat's path
+  libDir: 'C:\\Oracle\\instantclient_19_8' // Sally's path
 });
 
 oracledb.autoCommit = true;
@@ -505,6 +505,65 @@ async function getTopQuestionsByAnswer(req, res) {
   }
 }
 
+async function getQuestionsFromTopCategoriesOfTopAnswers(req, res) {
+  let connection;
+  connection = await oracledb.getConnection(config);
+
+  var take = parseInt(req.query.take);
+
+  var query = `
+      WITH top_answers AS (
+          SELECT  *
+          FROM    ( SELECT  ANSWER
+                          , COUNT(*) TOTAL_QUESTIONS
+                    FROM    JEOPARDY_QA
+                    GROUP BY ANSWER
+                    ORDER BY TOTAL_QUESTIONS DESC)
+          WHERE ROWNUM <= 20
+      )
+      , top_categories as (
+          SELECT  *
+          FROM    (
+              SELECT  DISTINCT qa1.category
+                      ,COUNT(qa1.answer) AS numAnswers
+              FROM    jeopardy_qa qa1
+                      INNER JOIN top_answers qa2 on qa1.answer = qa2.answer
+              GROUP BY qa1.category
+              ORDER BY numAnswers DESC
+                  )
+          WHERE   ROWNUM <= 10
+      )
+      SELECT  tc.category
+              ,qa.question
+              ,ta.answer
+      FROM    top_categories tc
+              INNER JOIN jeopardy_qa qa ON tc.category = qa.category
+              INNER JOIN top_answers ta ON qa.answer = ta.answer
+      ORDER BY tc.category, ta.answer`;
+  try {
+    const result = await connection.execute(query, [], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
+
+    let data = [];
+    for (let i = 0; i < result.rows.length; i++) {
+      data.push({
+        // SH: needs to be incorporated
+        category: result.rows[i].CATEGORY,
+        question: result.rows[i].QUESTION,
+        answer: result.rows[i].ANSWER
+      });
+    }
+
+    var obj = {};
+    obj.list = data;
+
+    res.json(obj);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
 async function getConfigurations(req, res) {
   let connection;
   connection = await oracledb.getConnection(config);
@@ -619,6 +678,7 @@ module.exports = {
   getTopWinnersFromTopOccupations: getTopWinnersFromTopOccupations,
   getTopQuestionsByCategory: getTopQuestionsByCategory,
   getTopQuestionsByAnswer: getTopQuestionsByAnswer,
+  getQuestionsFromTopCategoriesOfTopAnswers: getQuestionsFromTopCategoriesOfTopAnswers,
   getQuestions: getQuestions,
   checkAnswer: checkAnswer,
   getConfigurations: getConfigurations,
