@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="container-fluid">
-      <div class="row ml-0 mr-0 bg-banner" style="height: 500px"></div>
+      <div class="row ml-0 mr-0 bg-banner" style="height: 250px"></div>
 
       <br />
       <div class="col-md-12">

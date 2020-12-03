@@ -43,7 +43,7 @@ function chartOptions(Chart) {
         defaultColor: (mode == 'dark') ? colors.gray[700] : colors.gray[600],
         defaultFontColor: (mode == 'dark') ? colors.gray[700] : colors.gray[600],
         defaultFontFamily: fonts.base,
-        defaultFontSize: 13,
+        defaultFontSize: 16,
         layout: {
           padding: 0
         },
@@ -68,7 +68,8 @@ function chartOptions(Chart) {
             borderCapStyle: 'rounded'
           },
           rectangle: {
-            backgroundColor: colors.theme['warning']
+            backgroundColor: colors.theme['warning'],
+            borderWidth: 2
           },
           arc: {
             backgroundColor: colors.theme['primary'],
@@ -138,7 +139,7 @@ function chartOptions(Chart) {
     ticks: {
       padding: 20
     },
-    maxBarThickness: 10
+    maxBarThickness: 30
   });
 
   return options;

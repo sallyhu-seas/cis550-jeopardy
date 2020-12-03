@@ -19,7 +19,7 @@ app.get('/airdates', routes.getAirDates);
 
 app.get('/winners-occupation', routes.getTopWinnersByOccupation);
 
-app.get('/winners-state', routes.getTopWinnersByState);
+app.get('/winners-state', routes.getTopWinnersWithMostConsecutiveWins);
 
 app.get('/questions-category', routes.getTopQuestionsByCategory);
 

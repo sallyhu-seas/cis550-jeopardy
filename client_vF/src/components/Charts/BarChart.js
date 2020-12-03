@@ -8,7 +8,7 @@ export default {
   props: {
     extraOptions: {
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     }
   },
   data() {

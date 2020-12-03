@@ -1,9 +1,17 @@
 <template>
   <div class="container-fluid">
-    <div class="row ml-0 mr-0 bg-banner" style="height: 500px"></div>
+    <div class="row ml-0 mr-0 bg-banner" style="height: 250px"></div>
 
     <div class="row ml-0 mr-0">
       <div class="col-md-12 mt-2 mb-2">
+        <center>
+          <h1>
+            {{ mainText }}
+              <h2>
+              {{ subText }}
+              </h2>
+          </h1>
+        </center>
         <h3>
           {{ occupationText }}
         </h3>
@@ -11,8 +19,8 @@
         <card header-classes="bg-transparent pt-3">
           <div slot="header" class="row align-items-center">
             <div class="col">
-              <h6 class="text-uppercase text-muted ls-1 mb-1">Occupations</h6>
-              <h5 class="h3 mb-0">Total winners</h5>
+              <h6 class="text-uppercase text-muted ls-1 mb-1">Winners</h6>
+              <h5 class="h3 mb-0">By Occupation</h5>
             </div>
           </div>
 
@@ -33,8 +41,8 @@
         <card header-classes="bg-transparent pt-3">
           <div slot="header" class="row align-items-center">
             <div class="col">
-              <h6 class="text-uppercase text-muted ls-1 mb-1">States</h6>
-              <h5 class="h3 mb-0">Total winners</h5>
+              <h6 class="text-uppercase text-muted ls-1 mb-1">Top Winners</h6>
+              <h5 class="h3 mb-0">By Longest, Consecutive Winning Streak</h5>
             </div>
           </div>
 
@@ -47,7 +55,7 @@
         <Tableau
           url="https://public.tableau.com/shared/HRX9FWBF3?:display_count=y&:origin=viz_share_link"
           :height="1000"
-          :width="1000"
+          :width="2000"
           ref="tableau"
         >
         </Tableau>
@@ -72,8 +80,10 @@ export default {
       state: {
         chartData: {},
       },
+      mainText: "",
+      subText: "",
       occupationText: "",
-      stateText: "",
+      stateText: ""
     };
   },
   created() {
@@ -151,6 +161,12 @@ export default {
         .then((response) => {
           if (response) {
             for (let i = 0; i < response.data.list.length; i++) {
+              if (response.data.list[i].code == "MAIN-CONTESTANTS") {
+                this.mainText = response.data.list[i].value;
+              }
+              if (response.data.list[i].code == "SUB-CONTESTANTS") {
+                this.subText = response.data.list[i].value;
+              }
               if (response.data.list[i].code == "WINNER-OCCUPATION") {
                 this.occupationText = response.data.list[i].value;
               }

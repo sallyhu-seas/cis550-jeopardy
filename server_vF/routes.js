@@ -2,7 +2,8 @@ var config = require("./db-config.js");
 var oracledb = require("oracledb");
 
 oracledb.initOracleClient({
-  libDir: '/Users/datnguyen/Project550/instantclient_19_8',
+  // libDir: '/Users/datnguyen/Project550/instantclient_19_8'
+  libDir: 'C:\\Oracle\\instantclient_19_8' // Sally's path
 });
 
 oracledb.autoCommit = true;
@@ -76,13 +77,14 @@ async function getDatabase(req, res) {
   var query = `
     SELECT NUM, CID, NAME, OCCUPATION, ISWINNER, STATE, SHOWNUM, SEASON, AIRDATE
     FROM (SELECT ROWNUM AS NUM, c.CID, c.NAME, c.OCCUPATION, cp.ISWINNER, c.STATE, cp.SHOWNUM, js.SEASON, js.AIRDATE
-        FROM CONTESTANTS c
-        LEFT JOIN CONTESTANTS_PLAY cp
-          ON c.CID = cp.CID
-        LEFT JOIN JEOPARDY_SHOW js
-          ON js.SHOWNUM = cp.SHOWNUM
-        WHERE 1 = 1`;
-  if (state != null && state != undefined) query += ` AND c.STATE = '${state}'`;
+          FROM  CONTESTANTS c
+                LEFT JOIN CONTESTANTS_PLAY cp
+                  ON c.CID = cp.CID
+                LEFT JOIN JEOPARDY_SHOW js
+                  ON js.SHOWNUM = cp.SHOWNUM
+          WHERE 1 = 1`;
+  if (state != null && state != undefined) 
+    query += ` AND c.STATE = '${state}'`;
 
   if (season != null && season != undefined)
     query += ` AND js.SEASON = '${season}'`;
@@ -98,12 +100,12 @@ async function getDatabase(req, res) {
 
   var queryCount = `
     SELECT COUNT(*) AS TOTAL_RECORDS
-        FROM CONTESTANTS c
-        LEFT JOIN CONTESTANTS_PLAY cp
-          ON c.CID = cp.CID
-        LEFT JOIN JEOPARDY_SHOW js
-          ON js.SHOWNUM = cp.SHOWNUM
-        WHERE 1 = 1`;
+    FROM  CONTESTANTS c
+          LEFT JOIN CONTESTANTS_PLAY cp
+            ON c.CID = cp.CID
+          LEFT JOIN JEOPARDY_SHOW js
+            ON js.SHOWNUM = cp.SHOWNUM
+          WHERE 1 = 1`;
   if (state != null && state != undefined)
     queryCount += ` AND c.STATE = '${state}'`;
 
@@ -249,23 +251,32 @@ async function getTopWinnersByOccupation(req, res) {
   }
 }
 
-async function getTopWinnersByState(req, res) {
+async function getTopWinnersWithMostConsecutiveWins(req, res) {
   let connection;
   connection = await oracledb.getConnection(config);
 
   var take = parseInt(req.query.take);
 
   var query = `
-    SELECT * FROM
-      (SELECT STATE, COUNT(*) AS TOTAL_WINNERS
-        FROM CONTESTANTS c
-        LEFT JOIN CONTESTANTS_PLAY cp
-          ON c.CID = cp.CID
-        LEFT JOIN JEOPARDY_SHOW js
-          ON js.SHOWNUM = cp.SHOWNUM
-        WHERE cp.ISWINNER = 1 AND STATE IS NOT NULL
-        GROUP BY STATE
-        ORDER BY TOTAL_WINNERS DESC)
+    SELECT  *
+    FROM    ( SELECT  name
+                      ,count(*) AS num_consecutive_wins
+              FROM    (SELECT j.*
+                              ,(ROW_NUMBER() OVER (ORDER BY shownum) - ROW_NUMBER() OVER (PARTITION BY cid ORDER BY shownum)) as grp
+                       FROM   ( SELECT  c.cid
+                                        ,c.name
+                                        ,cp.shownum
+                                        ,js.season
+                                FROM    CONTESTANTS c
+                                        INNER JOIN CONTESTANTS_PLAY cp ON c.cid = cp.cid
+                                        INNER JOIN jeopardy_show js ON js.shownum = cp.shownum
+                                WHERE   cp.isWinner = 1
+                              ) j
+                        ORDER BY CID, shownum
+                      ) t
+              GROUP BY name
+              ORDER BY num_consecutive_wins DESC
+            )
     WHERE ROWNUM <= ${take}`;
   try {
     const result = await connection.execute(query, [], {
@@ -275,8 +286,136 @@ async function getTopWinnersByState(req, res) {
     let data = [];
     for (let i = 0; i < result.rows.length; i++) {
       data.push({
-        state: result.rows[i].STATE,
-        totalWinners: result.rows[i].TOTAL_WINNERS,
+        state: result.rows[i].NAME,
+        totalWinners: result.rows[i].NUM_CONSECUTIVE_WINS,
+      });
+    }
+
+    var obj = {};
+    obj.list = data;
+
+    res.json(obj);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+async function getTopWinnersFromTopOccupations(req, res) {
+  let connection;
+  connection = await oracledb.getConnection(config);
+
+  var take = parseInt(req.query.take);
+
+  var query = `
+          WITH top_occupations AS (
+            SELECT  *
+            FROM    (   SELECT  occupation
+                                ,COUNT(DISTINCT c.cid) as numOcc
+                        FROM    contestants c
+                                INNER JOIN contestants_play cp ON c.cid = cp.cid
+                        WHERE   isWinner = 1
+                        GROUP BY occupation
+                        ORDER BY numOcc DESC
+                    )
+            WHERE   ROWNUM <= 20
+        )
+        , top_players AS (
+            SELECT  c.occupation
+                    ,name
+                    ,COUNT(DISTINCT shownum) AS numWon
+            FROM    contestants c
+                    INNER JOIN top_occupations o ON c.occupation = o.occupation
+                    INNER JOIN contestants_play cp ON c.cid = cp.cid
+            WHERE   isWinner = 1
+            HAVING  COUNT(DISTINCT shownum) > 1
+            GROUP BY c.occupation,name
+            ORDER BY c.occupation,numWon DESC
+        )
+        , final_top AS (
+            select  occupation
+                    ,name
+                    ,numWon
+                    ,(ROW_NUMBER() OVER (PARTITION BY OCCUPATION ORDER BY NUMWON DESC)) as grp
+            from    top_players
+        )
+        SELECT  occupation
+                ,name
+                ,numwon
+        FROM    final_top
+        WHERE   grp <= 3
+      `;
+  try {
+    const result = await connection.execute(query, [], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
+
+    let data = [];
+    for (let i = 0; i < result.rows.length; i++) {
+      data.push({
+        // SH: Needs updating
+        state: result.rows[i].OCCUPATION,
+        totalWinners: result.rows[i].NAME,
+        // totalWinners: result.rows[i].NUMWON -- another variable to hold "numWon"
+      });
+    }
+
+    var obj = {};
+    obj.list = data;
+
+    res.json(obj);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+async function getTopCategoriesByTopWinners(req, res) {
+  let connection;
+  connection = await oracledb.getConnection(config);
+
+  var take = parseInt(req.query.take);
+
+  var query = `
+          WITH top AS (
+            SELECT  cid
+                    ,name
+            FROM    (
+                        SELECT  c.cid
+                                ,c.name
+                                ,count(*)
+                        FROM    contestants c
+                                INNER JOIN contestants_play cp ON c.cid = cp.cid
+                        WHERE   isWinner = 1
+                        GROUP BY c.cid,c.name
+                        ORDER BY count(*) desc
+                    )
+            WHERE   ROWNUM <= 20
+        )
+        SELECT  *
+        FROM    (
+                SELECT  category
+                        ,count(*)/5 AS avgNumEpisodes
+                        ,count(distinct name) AS numContestants
+                FROM    top t
+                        INNER JOIN contestants_play c ON t.cid = c.cid
+                        INNER JOIN jeopardy_qa qa ON c.shownum = qa.shownum
+                GROUP BY category
+                HAVING  count(*) > 5
+                ORDER BY numContestants DESC
+                )
+        WHERE   ROWNUM <= 10;
+      `;
+  try {
+    const result = await connection.execute(query, [], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
+
+    let data = [];
+    for (let i = 0; i < result.rows.length; i++) {
+      data.push({
+        // SH: Needs updating
+        state: result.rows[i].CATEGORY,
+        totalWinners: result.rows[i].AVGNUMEPISODES,
+        // totalWinners: result.rows[i].NUMCONTESTANTS -- another variable to hold "numContestants"
       });
     }
 
@@ -296,12 +435,14 @@ async function getTopQuestionsByCategory(req, res) {
   var take = parseInt(req.query.take);
 
   var query = `
-    SELECT * FROM(
-      SELECT CATEGORY, COUNT(*) TOTAL_QUESTIONS
-      FROM JEOPARDY_QA
-      GROUP BY CATEGORY
-      ORDER BY TOTAL_QUESTIONS DESC)
-    WHERE ROWNUM <= ${take}`;
+    SELECT  *
+    FROM    ( SELECT  CATEGORY
+                    , COUNT(*) TOTAL_QUESTIONS
+              FROM    JEOPARDY_QA
+              GROUP BY CATEGORY
+              ORDER BY TOTAL_QUESTIONS DESC
+            )
+    WHERE   ROWNUM <= ${take}`;
   try {
     const result = await connection.execute(query, [], {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
@@ -331,11 +472,12 @@ async function getTopQuestionsByAnswer(req, res) {
   var take = parseInt(req.query.take);
 
   var query = `
-    SELECT * FROM(
-      SELECT ANSWER, COUNT(*) TOTAL_QUESTIONS
-      FROM JEOPARDY_QA
-      GROUP BY ANSWER
-      ORDER BY TOTAL_QUESTIONS DESC)
+    SELECT  *
+    FROM    ( SELECT  ANSWER
+                    , COUNT(*) TOTAL_QUESTIONS
+              FROM    JEOPARDY_QA
+              GROUP BY ANSWER
+              ORDER BY TOTAL_QUESTIONS DESC)
     WHERE ROWNUM <= ${take}`;
   try {
     const result = await connection.execute(query, [], {
@@ -468,7 +610,9 @@ module.exports = {
   getAirDates: getAirDates,
   getDatabase: getDatabase,
   getTopWinnersByOccupation: getTopWinnersByOccupation,
-  getTopWinnersByState: getTopWinnersByState,
+  getTopWinnersWithMostConsecutiveWins: getTopWinnersWithMostConsecutiveWins,
+  getTopCategoriesByTopWinners:getTopCategoriesByTopWinners,
+  getTopWinnersFromTopOccupations: getTopWinnersFromTopOccupations,
   getTopQuestionsByCategory: getTopQuestionsByCategory,
   getTopQuestionsByAnswer: getTopQuestionsByAnswer,
   getQuestions: getQuestions,
