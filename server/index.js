@@ -9,30 +9,27 @@ app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
+app.post('/auth/login', routes.login);
 
-/* ---------------------------------------------------------------- */
-/* ------------------- Route handler registration ----------------- */
-/* ---------------------------------------------------------------- */
+app.post('/auth/register', routes.register);
 
+app.get('/database', routes.getDatabase);
 
+app.get('/airdates', routes.getAirDates);
 
+app.get('/winners-occupation', routes.getTopWinnersByOccupation);
 
-/* ---- (Dashboard) ---- */
-// The route localhost:8081/genres is registered to the function
-/* Testing just select */
-app.get('/seasons', routes.getSeasons);
+app.get('/winners-state', routes.getTopWinnersWithMostConsecutiveWins);
 
+app.get('/questions-category', routes.getTopQuestionsByCategory);
 
-/* Testing taking a parameter in */
+app.get('/questions-answer', routes.getTopQuestionsByAnswer);
 
-/* Testing posting */
+app.get('/questions', routes.getQuestions);
 
-app.get('/categories/:episode/:round', routes.getCategories);
+app.post('/check-answers', routes.checkAnswer);
 
-app.get('/getqa/:value/:category/:shownum/:round', routes.getQA);
-
-app.get('/episodes/:season', routes.getEpisodes);
-
+app.get('/configurations', routes.getConfigurations);
 
 app.listen(8081, () => {
 	console.log(`Server listening on PORT 8081`);
