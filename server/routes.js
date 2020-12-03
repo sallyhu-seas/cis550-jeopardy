@@ -83,7 +83,7 @@ async function getDatabase(req, res) {
                 LEFT JOIN JEOPARDY_SHOW js
                   ON js.SHOWNUM = cp.SHOWNUM
           WHERE 1 = 1`;
-  if (state != null && state != undefined) 
+  if (state != null && state != undefined)
     query += ` AND c.STATE = '${state}'`;
 
   if (season != null && season != undefined)
@@ -288,8 +288,8 @@ async function getTopWinnersWithMostConsecutiveWins(req, res) {
     let data = [];
     for (let i = 0; i < result.rows.length; i++) {
       data.push({
-        state: result.rows[i].NAME,
-        totalWinners: result.rows[i].NUM_CONSECUTIVE_WINS,
+        name: result.rows[i].NAME,
+        numConsecutiveWins: result.rows[i].NUM_CONSECUTIVE_WINS,
       });
     }
 
@@ -306,10 +306,8 @@ async function getTopWinnersFromTopOccupations(req, res) {
   let connection;
   connection = await oracledb.getConnection(config);
 
-  var take = parseInt(req.query.take);
-
   var query = `
-          WITH top_occupations AS (
+WITH top_occupations AS (
             SELECT  *
             FROM    (   SELECT  occupation
                                 ,COUNT(DISTINCT c.cid) as numOcc
@@ -346,6 +344,7 @@ async function getTopWinnersFromTopOccupations(req, res) {
         FROM    final_top
         WHERE   grp <= 3
       `;
+
   try {
     const result = await connection.execute(query, [], {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
@@ -354,10 +353,9 @@ async function getTopWinnersFromTopOccupations(req, res) {
     let data = [];
     for (let i = 0; i < result.rows.length; i++) {
       data.push({
-        // SH: Needs updating
-        state: result.rows[i].OCCUPATION,
-        totalWinners: result.rows[i].NAME,
-        // totalWinners: result.rows[i].NUMWON -- another variable to hold "numWon"
+        occupation: result.rows[i].OCCUPATION,
+        name: result.rows[i].NAME,
+        numWon: result.rows[i].NUMWON
       });
     }
 
@@ -408,8 +406,10 @@ async function getDaysBetweenFirstLossAndFirstWin(req, res) {
               ,first_win - first_loss AS datediff
       FROM    first_loss c2
               INNER JOIN first_win c3 ON c2.cid = c3.cid
+      WHERE ROWNUM <= 100
       ORDER BY datediff DESC
       `;
+
   try {
     const result = await connection.execute(query, [], {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
@@ -418,9 +418,8 @@ async function getDaysBetweenFirstLossAndFirstWin(req, res) {
     let data = [];
     for (let i = 0; i < result.rows.length; i++) {
       data.push({
-        // SH: Needs updating
-        state: result.rows[i].NAME,
-        totalWinners: result.rows[i].DATEDIFF
+        name: result.rows[i].NAME,
+        dateDiff: result.rows[i].DATEDIFF
       });
     }
 

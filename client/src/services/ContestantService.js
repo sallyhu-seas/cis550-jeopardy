@@ -18,4 +18,10 @@ export default {
     getConfigurations() {
         return Apis("GET", '/configurations');
     },
+    getTopWinnersByTopOccupation() {
+        return Apis("GET", '/winners-top-occupations');
+    },
+    getDateDiffs() {
+        return Apis("GET", '/days-first-loss-first-win');
+    },
 };

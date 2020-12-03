@@ -31,6 +31,12 @@ app.post('/check-answers', routes.checkAnswer);
 
 app.get('/configurations', routes.getConfigurations);
 
+app.get('/winners-consecutive-wins', routes.getTopWinnersWithMostConsecutiveWins);
+
+app.get('/winners-top-occupations', routes.getTopWinnersFromTopOccupations);
+
+app.get('/days-first-loss-first-win', routes.getDaysBetweenFirstLossAndFirstWin);
+
 app.listen(8081, () => {
 	console.log(`Server listening on PORT 8081`);
 });

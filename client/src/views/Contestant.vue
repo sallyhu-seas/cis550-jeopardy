@@ -7,9 +7,9 @@
         <center>
           <h1>
             {{ mainText }}
-              <h2>
+            <h2>
               {{ subText }}
-              </h2>
+            </h2>
           </h1>
         </center>
         <h3>
@@ -54,11 +54,70 @@
       <div class="col-md-12 mt-2 mb-2">
         <Tableau
           url="https://public.tableau.com/shared/HRX9FWBF3?:display_count=y&:origin=viz_share_link"
-          :height="1000"
-          :width="2000"
           ref="tableau"
         >
         </Tableau>
+      </div>
+    </div>
+
+    <div class="row ml-0 mr-0">
+      <div class="col-md-6 mt-2 mb-2">
+        <card header-classes="bg-transparent pt-3">
+          <div class="scrollbar-table">
+            <base-table-custom :headers="headersWinners" :items="listWinners">
+              <template v-slot:headers="props">
+                <tr>
+                  <th
+                    v-for="(header, index) in props.headers"
+                    :key="index"
+                    class="text-center bg-primary-line text-white"
+                  >
+                    {{ header.text }}
+                  </th>
+                </tr>
+              </template>
+
+              <template v-slot:item="props">
+                <td class="text-center">
+                  {{ props.index + 1 }}
+                </td>
+                <td>{{ props.item.name }}</td>
+                <td>{{ props.item.occupation }}</td>
+                <td class="text-center">{{ props.item.numWon }}</td>
+              </template>
+            </base-table-custom>
+          </div>
+        </card>
+      </div>
+      <div class="col-md-6 mt-2 mb-2">
+        <card header-classes="bg-transparent pt-3">
+          <div class="scrollbar-table">
+            <base-table-custom
+              :headers="headersDateDiffs"
+              :items="listDateDiffs"
+            >
+              <template v-slot:headers="props">
+                <tr>
+                  <th
+                    v-for="(header, index) in props.headers"
+                    :key="index"
+                    class="text-center bg-primary-line text-white"
+                  >
+                    {{ header.text }}
+                  </th>
+                </tr>
+              </template>
+
+              <template v-slot:item="props">
+                <td class="text-center">
+                  {{ props.index + 1 }}
+                </td>
+                <td>{{ props.item.name }}</td>
+                <td class="text-center">{{ props.item.dateDiff }}</td>
+              </template>
+            </base-table-custom>
+          </div>
+        </card>
       </div>
     </div>
   </div>
@@ -83,13 +142,42 @@ export default {
       mainText: "",
       subText: "",
       occupationText: "",
-      stateText: ""
+      stateText: "",
+      headersWinners: [
+        {
+          text: "No",
+        },
+        {
+          text: "Name",
+        },
+        {
+          text: "Occupation",
+        },
+        {
+          text: "Number of Wins",
+        },
+      ],
+      headersDateDiffs: [
+        {
+          text: "No",
+        },
+        {
+          text: "Name",
+        },
+        {
+          text: "Days Needed to Win",
+        },
+      ],
+      listWinners: [],
+      listDateDiffs: [],
     };
   },
   created() {
     this.getConfigurations();
     this.getWinnersByOccupation();
     this.getWinnersByState();
+    this.getDateDiffs();
+    this.getTopWinnersByTopOccupation();
   },
   methods: {
     getWinnersByOccupation() {
@@ -136,8 +224,8 @@ export default {
             let data = [];
 
             for (let i = 0; i < response.data.list.length; i++) {
-              labels.push(response.data.list[i].state);
-              data.push(response.data.list[i].totalWinners);
+              labels.push(response.data.list[i].name);
+              data.push(response.data.list[i].numConsecutiveWins);
             }
 
             this.state = {
@@ -174,6 +262,26 @@ export default {
                 this.stateText = response.data.list[i].value;
               }
             }
+          }
+        })
+        .catch(() => {});
+    },
+
+    getDateDiffs() {
+      ContestantService.getDateDiffs()
+        .then((response) => {
+          if (response) {
+            this.listDateDiffs = response.data.list;
+          }
+        })
+        .catch(() => {});
+    },
+
+    getTopWinnersByTopOccupation() {
+      ContestantService.getTopWinnersByTopOccupation()
+        .then((response) => {
+          if (response) {
+            this.listWinners = response.data.list;
           }
         })
         .catch(() => {});

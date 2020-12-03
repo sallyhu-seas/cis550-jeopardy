@@ -90,7 +90,7 @@
     <br />
     <div class="row ml-0 mr-0" v-if="isClickStart">
       <div class="col-2"></div>
-      <div class="col-8" style="background-color: black; height: 435px">
+      <div class="col-8" style="background-color: black; height: 400px">
         <div class="row">
           <div
             class="col-2 p-2 mr-0 ml-0"
@@ -229,7 +229,7 @@ export default {
   },
   methods: {
     getListSeasons() {
-      for (let i = 37; i >= 1; i--) {
+      for (let i = 28; i >= 1; i--) {
         this.listSeasons.push({
           id: i,
           name: "Season " + i,
@@ -408,7 +408,7 @@ export default {
 .box {
   text-align: center;
   font-size: 15px;
-  height: 70px;
+  height: 63px;
   width: 100%;
   color: white;
   background-color: rgb(0, 31, 146);
@@ -420,8 +420,8 @@ export default {
   cursor: pointer;
   align-content: middle;
   text-align: center;
-  font-size: 33px;
-  height: 50px;
+  font-size: 27px;
+  height: 45px;
   width: 100%;
   color: yellow;
   background-color: rgb(0, 31, 146);
