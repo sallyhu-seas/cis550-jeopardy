@@ -218,16 +218,18 @@ async function getTopWinnersByOccupation(req, res) {
   var take = parseInt(req.query.take);
 
   var query = `
-    SELECT * FROM
-      (SELECT OCCUPATION, COUNT(*) AS TOTAL_WINNERS
-        FROM CONTESTANTS c
-        LEFT JOIN CONTESTANTS_PLAY cp
-          ON c.CID = cp.CID
-        LEFT JOIN JEOPARDY_SHOW js
-          ON js.SHOWNUM = cp.SHOWNUM
-        WHERE cp.ISWINNER = 1 AND STATE IS NOT NULL
-        GROUP BY OCCUPATION
-        ORDER BY TOTAL_WINNERS DESC)
+    SELECT  *
+    FROM    ( SELECT OCCUPATION
+                    , COUNT(*) AS TOTAL_WINNERS
+              FROM CONTESTANTS c
+                    LEFT JOIN CONTESTANTS_PLAY cp
+                      ON c.CID = cp.CID
+                    LEFT JOIN JEOPARDY_SHOW js
+                      ON js.SHOWNUM = cp.SHOWNUM
+              WHERE cp.ISWINNER = 1 
+                    AND STATE IS NOT NULL
+              GROUP BY OCCUPATION
+              ORDER BY TOTAL_WINNERS DESC)
     WHERE ROWNUM <= ${take}`;
   try {
     const result = await connection.execute(query, [], {
@@ -368,41 +370,45 @@ async function getTopWinnersFromTopOccupations(req, res) {
   }
 }
 
-async function getTopCategoriesByTopWinners(req, res) {
+async function getDaysBetweenFirstLossAndFirstWin(req, res) {
   let connection;
   connection = await oracledb.getConnection(config);
 
   var take = parseInt(req.query.take);
 
   var query = `
-          WITH top AS (
-            SELECT  cid
-                    ,name
-            FROM    (
-                        SELECT  c.cid
-                                ,c.name
-                                ,count(*)
-                        FROM    contestants c
-                                INNER JOIN contestants_play cp ON c.cid = cp.cid
-                        WHERE   isWinner = 1
-                        GROUP BY c.cid,c.name
-                        ORDER BY count(*) desc
-                    )
-            WHERE   ROWNUM <= 20
-        )
-        SELECT  *
-        FROM    (
-                SELECT  category
-                        ,count(*)/5 AS avgNumEpisodes
-                        ,count(distinct name) AS numContestants
-                FROM    top t
-                        INNER JOIN contestants_play c ON t.cid = c.cid
-                        INNER JOIN jeopardy_qa qa ON c.shownum = qa.shownum
-                GROUP BY category
-                HAVING  count(*) > 5
-                ORDER BY numContestants DESC
-                )
-        WHERE   ROWNUM <= 10;
+      WITH combine AS(
+          SELECT  DISTINCT c.cid
+                  ,c.name
+                  ,iswinner
+                  ,js.airdate 
+          FROM    contestants c
+                  INNER JOIN contestants_play cp ON c.cid = cp.cid
+                  INNER JOIN jeopardy_show js ON js.shownum = cp.shownum
+      )
+      ,first_loss AS (
+          SELECT  cid
+                  ,name
+                  ,MIN(airdate) AS first_loss
+          FROM    combine
+          WHERE   iswinner = 0
+          GROUP BY cid
+                  ,name
+      )
+      ,first_win AS (
+          SELECT  cid
+                  ,name
+                  ,MIN(airdate) AS first_win
+          FROM    combine
+          WHERE   iswinner = 1
+          GROUP BY cid
+                  ,name
+      )
+      SELECT  c2.name
+              ,first_win - first_loss AS datediff
+      FROM    first_loss c2
+              INNER JOIN first_win c3 ON c2.cid = c3.cid
+      ORDER BY datediff DESC
       `;
   try {
     const result = await connection.execute(query, [], {
@@ -413,9 +419,8 @@ async function getTopCategoriesByTopWinners(req, res) {
     for (let i = 0; i < result.rows.length; i++) {
       data.push({
         // SH: Needs updating
-        state: result.rows[i].CATEGORY,
-        totalWinners: result.rows[i].AVGNUMEPISODES,
-        // totalWinners: result.rows[i].NUMCONTESTANTS -- another variable to hold "numContestants"
+        state: result.rows[i].NAME,
+        totalWinners: result.rows[i].DATEDIFF
       });
     }
 
@@ -611,7 +616,7 @@ module.exports = {
   getDatabase: getDatabase,
   getTopWinnersByOccupation: getTopWinnersByOccupation,
   getTopWinnersWithMostConsecutiveWins: getTopWinnersWithMostConsecutiveWins,
-  getTopCategoriesByTopWinners:getTopCategoriesByTopWinners,
+  getDaysBetweenFirstLossAndFirstWin: getDaysBetweenFirstLossAndFirstWin,
   getTopWinnersFromTopOccupations: getTopWinnersFromTopOccupations,
   getTopQuestionsByCategory: getTopQuestionsByCategory,
   getTopQuestionsByAnswer: getTopQuestionsByAnswer,
