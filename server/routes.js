@@ -2,8 +2,8 @@ var config = require("./db-config.js");
 var oracledb = require("oracledb");
 
 oracledb.initOracleClient({
-  // libDir: '/Users/datnguyen/Project550/instantclient_19_8' // Dat's path
-  libDir: 'C:\\Oracle\\instantclient_19_8' // Sally's path
+  libDir: '/Users/datnguyen/Project550/instantclient_19_8' // Dat's path
+  // libDir: 'C:\\Oracle\\instantclient_19_8' // Sally's path
 });
 
 oracledb.autoCommit = true;
@@ -150,6 +150,35 @@ async function getDatabase(req, res) {
   }
 }
 
+async function getSeasons(req, res) {
+  let connection;
+  connection = await oracledb.getConnection(config);
+
+  var query = `
+    SELECT DISTINCT SEASON
+    FROM JEOPARDY_SHOW
+    ORDER BY SEASON DESC`;
+  try {
+    const result = await connection.execute(query, [], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
+
+    let data = [];
+    for (let i = 0; i < result.rows.length; i++) {
+      data.push({
+        season: result.rows[i].SEASON,
+      });
+    }
+
+    var obj = {};
+    obj.list = data;
+
+    res.json(obj);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
 async function getAirDates(req, res) {
   var season = req.query.season;
   let connection;
@@ -278,7 +307,7 @@ async function getTopWinnersFromTopOccupations(req, res) {
   connection = await oracledb.getConnection(config);
 
   var query = `
-        WITH top_occupations AS (
+WITH top_occupations AS (
             SELECT  *
             FROM    (   SELECT  occupation
                                 ,COUNT(DISTINCT c.cid) as numOcc
@@ -347,7 +376,7 @@ async function getDaysBetweenFirstLossAndFirstWin(req, res) {
 
   var query = `
       WITH combine AS(
-          SELECT  c.cid
+          SELECT  DISTINCT c.cid
                   ,c.name
                   ,iswinner
                   ,js.airdate 
@@ -373,14 +402,12 @@ async function getDaysBetweenFirstLossAndFirstWin(req, res) {
           GROUP BY cid
                   ,name
       )
-      SELECT    *
-      FROM      (SELECT  c2.name
-                          ,first_win - first_loss AS datediff
-                  FROM    first_loss c2
-                          INNER JOIN first_win c3 ON c2.cid = c3.cid
-                  ORDER BY datediff DESC
-                )
-      WHERE       ROWNUM <= 20
+      SELECT  c2.name
+              ,first_win - first_loss AS datediff
+      FROM    first_loss c2
+              INNER JOIN first_win c3 ON c2.cid = c3.cid
+      WHERE ROWNUM <= 100
+      ORDER BY datediff DESC
       `;
 
   try {
@@ -466,65 +493,6 @@ async function getTopQuestionsByAnswer(req, res) {
       data.push({
         answer: result.rows[i].ANSWER,
         totalQuestions: result.rows[i].TOTAL_QUESTIONS,
-      });
-    }
-
-    var obj = {};
-    obj.list = data;
-
-    res.json(obj);
-  } catch (err) {
-    console.error(err);
-  }
-}
-
-async function getQuestionsFromTopCategoriesOfTopAnswers(req, res) {
-  let connection;
-  connection = await oracledb.getConnection(config);
-
-  var take = parseInt(req.query.take);
-
-  var query = `
-      WITH top_answers AS (
-          SELECT  *
-          FROM    ( SELECT  ANSWER
-                          , COUNT(*) TOTAL_QUESTIONS
-                    FROM    JEOPARDY_QA
-                    GROUP BY ANSWER
-                    ORDER BY TOTAL_QUESTIONS DESC)
-          WHERE ROWNUM <= 20
-      )
-      , top_categories as (
-          SELECT  *
-          FROM    (
-              SELECT  DISTINCT qa1.category
-                      ,COUNT(qa1.answer) AS numAnswers
-              FROM    jeopardy_qa qa1
-                      INNER JOIN top_answers qa2 on qa1.answer = qa2.answer
-              GROUP BY qa1.category
-              ORDER BY numAnswers DESC
-                  )
-          WHERE   ROWNUM <= 10
-      )
-      SELECT  tc.category
-              ,qa.question
-              ,ta.answer
-      FROM    top_categories tc
-              INNER JOIN jeopardy_qa qa ON tc.category = qa.category
-              INNER JOIN top_answers ta ON qa.answer = ta.answer
-      ORDER BY tc.category, ta.answer`;
-  try {
-    const result = await connection.execute(query, [], {
-      outFormat: oracledb.OUT_FORMAT_OBJECT,
-    });
-
-    let data = [];
-    for (let i = 0; i < result.rows.length; i++) {
-      data.push({
-        // SH: needs to be incorporated
-        category: result.rows[i].CATEGORY,
-        question: result.rows[i].QUESTION,
-        answer: result.rows[i].ANSWER
       });
     }
 
@@ -651,7 +619,6 @@ module.exports = {
   getTopWinnersFromTopOccupations: getTopWinnersFromTopOccupations,
   getTopQuestionsByCategory: getTopQuestionsByCategory,
   getTopQuestionsByAnswer: getTopQuestionsByAnswer,
-  getQuestionsFromTopCategoriesOfTopAnswers: getQuestionsFromTopCategoriesOfTopAnswers,
   getQuestions: getQuestions,
   checkAnswer: checkAnswer,
   getConfigurations: getConfigurations,

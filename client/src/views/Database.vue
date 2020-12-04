@@ -5,10 +5,14 @@
 
       <br />
       <div class="col-md-12">
+          <h2>
+            {{ 'Select One of the Filters Below to Start Your Queries!' }}
+          </h2>
+          <br>
         <div class="row">
           <div class="col-md-3">
             <diV class="form-group-row">
-              <label class="col-sm-4 mt-1">States</label>
+              <label class="col-sm-4 mt-1">State</label>
               <el-select
                 class="select-danger select-custom font-italic col-sm-8 rounded-0"
                 v-model="stateSearch"

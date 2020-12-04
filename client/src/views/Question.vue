@@ -4,51 +4,82 @@
 
     <div class="row ml-0 mr-0">
       <div class="col-md-12 mt-2 mb-2">
-        <h3>{{ categoryText }}</h3>
+        <center>
+          <h1>
+            {{ mainText }}
+            <h2>
+              {{ subText }}
+            </h2>
+          </h1>
+        </center>
 
-        <card header-classes="bg-transparent pt-3">
-          <div slot="header" class="row align-items-center">
-            <div class="col">
-              <h6 class="text-uppercase text-muted ls-1 mb-1">Category</h6>
-              <h5 class="h3 mb-0">Total questions</h5>
+        <div style="white-space: pre-line;">{{textWithLineBreaks}}
+        </div>
+        <h3>{{ categoryText }}
+        </h3>
+
+        <div class="col md 12">
+          <card header-classes="bg-transparent pt-3">
+            <div slot="header" class="row align-items-center">
+              <div class="col">
+                <h6 class="text-uppercase text-muted ls-1 mb-1">Category</h6>
+                <h5 class="h3 mb-0">Total questions</h5>
+              </div>
             </div>
-          </div>
 
-          <bar-chart
-            :height="350"
-            ref="barChart"
-            :chart-data="category.chartData"
-          >
-          </bar-chart>
-        </card>
+            <bar-chart
+              :height="350"
+              ref="barChart"
+              :chart-data="category.chartData"
+            >
+            </bar-chart>
+          </card>
+        </div>
+        <br>
+        <br>
       </div>
 
       <div class="col-md-12 mt-2 mb-2">
         <h3>{{ answerText }}</h3>
+          <div class="col md 12">
+            <card header-classes="bg-transparent pt-3">
+              <div slot="header" class="row align-items-center">
+                <div class="col">
+                  <h6 class="text-uppercase text-muted ls-1 mb-1">Answer</h6>
+                  <h5 class="h3 mb-0">Total questions</h5>
+                </div>
+              </div>
 
-        <card header-classes="bg-transparent pt-3">
-          <div slot="header" class="row align-items-center">
-            <div class="col">
-              <h6 class="text-uppercase text-muted ls-1 mb-1">Answer</h6>
-              <h5 class="h3 mb-0">Total questions</h5>
-            </div>
+              <bar-chart
+                :height="350"
+                ref="barChart"
+                :chart-data="answer.chartData"
+              >
+              </bar-chart>
+            </card>
           </div>
+          <br>
+          <br>
+      </div>
 
-          <bar-chart
-            :height="350"
-            ref="barChart"
-            :chart-data="answer.chartData"
-          >
-          </bar-chart>
-        </card>
+      <div class="col-md-12 mt-2 mb-2">
+        <center>
+        <Tableau
+          url="https://public.tableau.com/views/Book5_16070478720750/Dashboard1?:language=en&:display_count=y&:origin=viz_share_link"
+          width="1650px"
+          ref="tableau"
+        >
+        </Tableau>
+        </center>
       </div>
-      </div>
+
     </div>
+  </div>
 </template>
 <script>
 import BarChart from "@/components/Charts/BarChart";
 import QuestionService from "../services/QuestionService.js";
-
+import "vue-tableau";
 
 export default {
   components: {
@@ -141,6 +172,12 @@ export default {
         .then((response) => {
           if (response) {
             for (let i = 0; i < response.data.list.length; i++) {
+              if (response.data.list[i].code == "MAIN-QUESTION") {
+                this.mainText = response.data.list[i].value;
+              }
+              if (response.data.list[i].code == "SUB-QUESTION") {
+                this.subText = response.data.list[i].value;
+              }
               if (response.data.list[i].code == "QUESTION-CATEGORY") {
                 this.categoryText = response.data.list[i].value;
               }

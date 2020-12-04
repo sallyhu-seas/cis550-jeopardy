@@ -1,8 +1,7 @@
 <template>
-  <div
-    class="container-fluid"
-    style="background-color: rgb(0, 31, 146); height: 94vh; width: 100%"
-  >
+
+  <div class="container-fluid bg-play">
+  
     <div class="col-12 pt-4" style="text-align: center">
       <div v-if="!isClickStart">
         <h2 class="color-white">Let's Play Jeopardy!</h2>
@@ -117,7 +116,7 @@
     </div>
     <br />
     <div style="text-align: center" v-if="isClickStart">
-      <h2 class="pt-3 pl-3 color-white" style="height: 80px">
+      <h2 class="pt-3 pl-3 color-black" style="height: 80px">
         {{ question }}
       </h2>
       <br />
