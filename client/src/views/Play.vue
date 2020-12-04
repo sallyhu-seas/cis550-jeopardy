@@ -228,7 +228,7 @@ export default {
   },
   methods: {
     getListSeasons() {
-      for (let i = 28; i >= 1; i--) {
+      for (let i = 27; i >= 1; i--) {
         this.listSeasons.push({
           id: i,
           name: "Season " + i,
