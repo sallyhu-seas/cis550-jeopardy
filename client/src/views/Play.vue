@@ -403,6 +403,7 @@ export default {
   },
 };
 </script>
+
 <style>
 .box {
   text-align: center;
