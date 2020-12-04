@@ -2,8 +2,8 @@ var config = require("./db-config.js");
 var oracledb = require("oracledb");
 
 oracledb.initOracleClient({
-  // libDir: '/Users/datnguyen/Project550/instantclient_19_8' // Dat's path
-  libDir: 'C:\\Oracle\\instantclient_19_8' // Sally's path
+  libDir: '/Users/datnguyen/Project550/instantclient_19_8' // Dat's path
+  // libDir: 'C:\\Oracle\\instantclient_19_8' // Sally's path
 });
 
 oracledb.autoCommit = true;

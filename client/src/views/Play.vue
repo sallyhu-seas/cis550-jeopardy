@@ -267,7 +267,7 @@ export default {
       if (this.isChooseQuestion) {
         this.$notify({
           type: "danger",
-          message: "Please choose the question",
+          message: "Please choose a question",
         });
         return;
       }
@@ -308,7 +308,7 @@ export default {
       if (this.isChooseQuestion) {
         this.$notify({
           type: "danger",
-          message: "Please choose the question",
+          message: "Please choose a question",
         });
         return;
       }
@@ -408,7 +408,7 @@ export default {
 .box {
   text-align: center;
   font-size: 15px;
-  height: 63px;
+  height: 70px;
   width: 100%;
   color: white;
   background-color: rgb(0, 31, 146);
