@@ -42,12 +42,21 @@
           </bar-chart>
         </card>
       </div>
+      
+           <div class="col-md-12 mt-2 mb-2">
+        <Tableau
+          url="https://public.tableau.com/views/Book3_16070445711590/Dashboard1?:language=en&:display_count=y&:origin=viz_share_link"
+          ref="tableau"
+        >
+        </Tableau>
+      </div>
     </div>
-  </div>
 </template>
 <script>
 import BarChart from "@/components/Charts/BarChart";
 import QuestionService from "../services/QuestionService.js";
+import "vue-tableau";
+
 
 export default {
   components: {
