@@ -408,7 +408,7 @@ export default {
 .box {
   text-align: center;
   font-size: 15px;
-  height: 69px;
+  height: 70px;
   width: 100%;
   color: white;
   background-color: rgb(0, 31, 146);
