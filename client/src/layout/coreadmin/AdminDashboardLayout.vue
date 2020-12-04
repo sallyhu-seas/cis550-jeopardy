@@ -24,12 +24,10 @@
   </div>
 </template>
 <script>
-import { FadeTransition } from "vue2-transitions";
 import Navbar from "../DashboardNavbar";
 
 export default {
   components: {
-    FadeTransition,
     Navbar,
   },
   data() {
