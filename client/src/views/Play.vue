@@ -89,7 +89,7 @@
     <br />
     <div class="row ml-0 mr-0" v-if="isClickStart">
       <div class="col-2"></div>
-      <div class="col-8" style="background-color: black; height: 400px">
+      <div class="col-8" style="background-color: transparent; height: 400px">
         <div class="row">
           <div
             class="col-2 p-2 mr-0 ml-0"
