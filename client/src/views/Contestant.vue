@@ -165,7 +165,7 @@ export default {
           text: "Name",
         },
         {
-          text: "Days Needed to Win",
+          text: "# of days taken for each re-challenger to win",
         },
       ],
       listWinners: [],
