@@ -2,8 +2,8 @@ var config = require("./db-config.js");
 var oracledb = require("oracledb");
 
 oracledb.initOracleClient({
-  libDir: '/Users/datnguyen/Project550/instantclient_19_8' // Dat's path
-  // libDir: 'C:\\Oracle\\instantclient_19_8' // Sally's path
+  // libDir: '/Users/datnguyen/Project550/instantclient_19_8' // Dat's path
+  libDir: 'C:\\Oracle\\instantclient_19_8' // Sally's path
 });
 
 oracledb.autoCommit = true;
@@ -150,35 +150,6 @@ async function getDatabase(req, res) {
   }
 }
 
-async function getSeasons(req, res) {
-  let connection;
-  connection = await oracledb.getConnection(config);
-
-  var query = `
-    SELECT DISTINCT SEASON
-    FROM JEOPARDY_SHOW
-    ORDER BY SEASON DESC`;
-  try {
-    const result = await connection.execute(query, [], {
-      outFormat: oracledb.OUT_FORMAT_OBJECT,
-    });
-
-    let data = [];
-    for (let i = 0; i < result.rows.length; i++) {
-      data.push({
-        season: result.rows[i].SEASON,
-      });
-    }
-
-    var obj = {};
-    obj.list = data;
-
-    res.json(obj);
-  } catch (err) {
-    console.error(err);
-  }
-}
-
 async function getAirDates(req, res) {
   var season = req.query.season;
   let connection;
@@ -218,16 +189,18 @@ async function getTopWinnersByOccupation(req, res) {
   var take = parseInt(req.query.take);
 
   var query = `
+    with winners as (
+      SELECT  occupation
+              ,shownum
+      FROM    CONTESTANTS_VIEW
+      WHERE   isWinner = 1
+              AND state IS NOT NULL
+    )
     SELECT  *
     FROM    ( SELECT OCCUPATION
                     , COUNT(*) AS TOTAL_WINNERS
-              FROM CONTESTANTS c
-                    LEFT JOIN CONTESTANTS_PLAY cp
-                      ON c.CID = cp.CID
-                    LEFT JOIN JEOPARDY_SHOW js
-                      ON js.SHOWNUM = cp.SHOWNUM
-              WHERE cp.ISWINNER = 1 
-                    AND STATE IS NOT NULL
+              FROM  winners c
+                    INNER JOIN JEOPARDY_SHOW js ON js.SHOWNUM = c.SHOWNUM
               GROUP BY OCCUPATION
               ORDER BY TOTAL_WINNERS DESC)
     WHERE ROWNUM <= ${take}`;
@@ -260,6 +233,11 @@ async function getTopWinnersWithMostConsecutiveWins(req, res) {
   var take = parseInt(req.query.take);
 
   var query = `
+    WITH winners AS (
+      SELECT  *
+      FROM    contestants_view
+      WHERE   iswinner=1
+    )
     SELECT  *
     FROM    ( SELECT  name
                       ,count(*) AS num_consecutive_wins
@@ -267,12 +245,10 @@ async function getTopWinnersWithMostConsecutiveWins(req, res) {
                               ,(ROW_NUMBER() OVER (ORDER BY shownum) - ROW_NUMBER() OVER (PARTITION BY cid ORDER BY shownum)) as grp
                        FROM   ( SELECT  c.cid
                                         ,c.name
-                                        ,cp.shownum
+                                        ,c.shownum
                                         ,js.season
-                                FROM    CONTESTANTS c
-                                        INNER JOIN CONTESTANTS_PLAY cp ON c.cid = cp.cid
-                                        INNER JOIN jeopardy_show js ON js.shownum = cp.shownum
-                                WHERE   cp.isWinner = 1
+                                FROM    winners c
+                                        INNER JOIN jeopardy_show js ON js.shownum = c.shownum
                               ) j
                         ORDER BY CID, shownum
                       ) t
@@ -307,26 +283,27 @@ async function getTopWinnersFromTopOccupations(req, res) {
   connection = await oracledb.getConnection(config);
 
   var query = `
-WITH top_occupations AS (
+        WITH winners AS (
             SELECT  *
-            FROM    (   SELECT  occupation
-                                ,COUNT(DISTINCT c.cid) as numOcc
-                        FROM    contestants c
-                                INNER JOIN contestants_play cp ON c.cid = cp.cid
-                        WHERE   isWinner = 1
-                        GROUP BY occupation
-                        ORDER BY numOcc DESC
-                    )
-            WHERE   ROWNUM <= 20
+            FROM    contestants_view
+            WHERE   isWinner=1
+        )
+        ,top_occupations AS (
+                    SELECT  *
+                    FROM    (   SELECT  occupation
+                                        ,COUNT(DISTINCT cid) as numOcc
+                                FROM    winners
+                                GROUP BY occupation
+                                ORDER BY numOcc DESC
+                            )
+                    WHERE   ROWNUM <= 20
         )
         , top_players AS (
             SELECT  c.occupation
                     ,name
                     ,COUNT(DISTINCT shownum) AS numWon
-            FROM    contestants c
+            FROM    winners c
                     INNER JOIN top_occupations o ON c.occupation = o.occupation
-                    INNER JOIN contestants_play cp ON c.cid = cp.cid
-            WHERE   isWinner = 1
             HAVING  COUNT(DISTINCT shownum) > 1
             GROUP BY c.occupation,name
             ORDER BY c.occupation,numWon DESC
@@ -343,6 +320,7 @@ WITH top_occupations AS (
                 ,numwon
         FROM    final_top
         WHERE   grp <= 3
+        ORDER BY occupation,numwon desc
       `;
 
   try {
@@ -380,9 +358,8 @@ async function getDaysBetweenFirstLossAndFirstWin(req, res) {
                   ,c.name
                   ,iswinner
                   ,js.airdate 
-          FROM    contestants c
-                  INNER JOIN contestants_play cp ON c.cid = cp.cid
-                  INNER JOIN jeopardy_show js ON js.shownum = cp.shownum
+          FROM    contestants_view c
+                  INNER JOIN jeopardy_show js ON js.shownum = c.shownum
       )
       ,first_loss AS (
           SELECT  cid
@@ -402,12 +379,15 @@ async function getDaysBetweenFirstLossAndFirstWin(req, res) {
           GROUP BY cid
                   ,name
       )
-      SELECT  c2.name
-              ,first_win - first_loss AS datediff
-      FROM    first_loss c2
-              INNER JOIN first_win c3 ON c2.cid = c3.cid
-      WHERE ROWNUM <= 100
-      ORDER BY datediff DESC
+      SELECT    *
+      FROM  (
+              SELECT  c2.name
+                      ,first_win - first_loss AS datediff
+              FROM    first_loss c2
+                      INNER JOIN first_win c3 ON c2.cid = c3.cid
+              ORDER BY datediff DESC
+              )
+        WHERE   ROWNUM <= 20
       `;
 
   try {
@@ -420,6 +400,64 @@ async function getDaysBetweenFirstLossAndFirstWin(req, res) {
       data.push({
         name: result.rows[i].NAME,
         dateDiff: result.rows[i].DATEDIFF
+      });
+    }
+
+    var obj = {};
+    obj.list = data;
+
+    res.json(obj);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+async function getQuestionsFromTopCategoriesOfTopAnswers(req, res) {
+  let connection;
+  connection = await oracledb.getConnection(config);
+
+  var take = parseInt(req.query.take);
+
+  var query = `
+      WITH top_answers AS (
+          SELECT  *
+          FROM    ( SELECT  ANSWER
+                          , COUNT(*) TOTAL_QUESTIONS
+                    FROM    JEOPARDY_QA
+                    GROUP BY ANSWER
+                    ORDER BY TOTAL_QUESTIONS DESC)
+          WHERE ROWNUM <= 20
+      )
+      , top_categories as (
+          SELECT  *
+          FROM    (
+              SELECT  DISTINCT qa1.category
+                      ,COUNT(qa1.answer) AS numAnswers
+              FROM    jeopardy_qa qa1
+                      INNER JOIN top_answers qa2 on qa1.answer = qa2.answer
+              GROUP BY qa1.category
+              ORDER BY numAnswers DESC
+                  )
+          WHERE   ROWNUM <= 10
+      )
+      SELECT  tc.category
+              ,qa.question
+              ,ta.answer
+      FROM    top_categories tc
+              INNER JOIN jeopardy_qa qa ON tc.category = qa.category
+              INNER JOIN top_answers ta ON qa.answer = ta.answer
+      ORDER BY tc.category, ta.answer`;
+  try {
+    const result = await connection.execute(query, [], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
+
+    let data = [];
+    for (let i = 0; i < result.rows.length; i++) {
+      data.push({
+        category: result.rows[i].CATEGORY,
+        question: result.rows[i].QUESTION,
+        answer: result.rows[i].ANSWER
       });
     }
 
@@ -576,21 +614,30 @@ async function checkAnswer(req, res) {
   connection = await oracledb.getConnection(config);
 
   var id = req.body.id;
-  var answer = req.body.answer;
+  var answer = req.body.answer.toLowerCase();
 
   var query = `
-    SELECT ANSWER
-    FROM JEOPARDY_QA
-    WHERE QID = ${id}`;
+    SELECT  ANSWER
+    FROM    JEOPARDY_QA
+    WHERE   QID = ${id}`;
+
+  var queryLike = `
+    SELECT  ANSWER
+    FROM    JEOPARDY_QA
+    WHERE   QID = ${id}
+            AND LOWER(answer) LIKE '%${answer}%'`;
   try {
     const result = await connection.execute(query, [], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
+    const resultLike = await connection.execute(queryLike, [], {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
     });
 
     var obj = {};
 
     if (result.rows.length > 0) {
-      if (result.rows[0].ANSWER.toLowerCase() == answer.toLowerCase()) {
+      if (resultLike.rows.length > 0) {
         obj.status = 1;
         obj.message = "Correct";
         obj.answer = result.rows[0].ANSWER;
@@ -619,6 +666,7 @@ module.exports = {
   getTopWinnersFromTopOccupations: getTopWinnersFromTopOccupations,
   getTopQuestionsByCategory: getTopQuestionsByCategory,
   getTopQuestionsByAnswer: getTopQuestionsByAnswer,
+  getQuestionsFromTopCategoriesOfTopAnswers:getQuestionsFromTopCategoriesOfTopAnswers,
   getQuestions: getQuestions,
   checkAnswer: checkAnswer,
   getConfigurations: getConfigurations,
