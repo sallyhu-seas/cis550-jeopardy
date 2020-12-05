@@ -2,8 +2,8 @@ var config = require("./db-config.js");
 var oracledb = require("oracledb");
 
 oracledb.initOracleClient({
-  // libDir: '/Users/datnguyen/Project550/instantclient_19_8' // Dat's path
-  libDir: 'C:\\Oracle\\instantclient_19_8' // Sally's path
+  libDir: '/Users/datnguyen/Project550/instantclient_19_8' // Dat's path
+  // libDir: 'C:\\Oracle\\instantclient_19_8' // Sally's path
 });
 
 oracledb.autoCommit = true;
@@ -24,7 +24,7 @@ async function login(req, res) {
       obj.username = req.body.username;
     } else {
       obj.status = 0;
-      obj.message = "Username or password is invalid";
+      obj.message = "Username or password is invalid!";
     }
 
     res.json(obj);
@@ -46,7 +46,7 @@ async function register(req, res) {
 
     if (result.rows.length > 0) {
       obj.status = 0;
-      obj.message = "Username is existed";
+      obj.message = "Username has already been taken!";
     } else {
       var queryInsert = `
         INSERT INTO Users (email, pwhash)
@@ -54,7 +54,7 @@ async function register(req, res) {
       await connection.execute(queryInsert);
 
       obj.status = 1;
-      obj.message = "Register successfully";
+      obj.message = "Register successfully!";
     }
 
     res.json(obj);

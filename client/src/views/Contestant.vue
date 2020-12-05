@@ -64,17 +64,20 @@
       </div>
 
       <div class="col-md-12 mt-2 mb-2">
+        <center>
         <Tableau
           url="https://public.tableau.com/views/Book3_16070445711590/Dashboard1?:language=en&:display_count=y&:origin=viz_share_link"
+          width="1650px"
           ref="tableau"
         >
         </Tableau>
+        </center>
       </div>
     </div>
 
     <div class="col-md-12 mt-2 mb-2">
       <h2>
-        {{ '      Example of some complex queries.' }}
+        {{ 'Example of some complex queries.' }}
       </h2>
     </div>
 
