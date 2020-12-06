@@ -5,9 +5,11 @@
 
       <br />
       <div class="col-md-12">
-          <h2>
-            {{ 'Select One of the Filters Below to Start Your Queries!' }}
-          </h2>
+          <center>  
+            <h1>
+              {{ "Let's Query!" }}
+            </h1>
+          </center>
           <br>
         <div class="row">
           <div class="col-md-3">
@@ -115,40 +117,42 @@
         <br />
       </div>
 
-      <div class="scrollbar-table">
-        <base-table-custom :headers="headers" :items="listContestants">
-          <template v-slot:headers="props">
-            <tr>
-              <th
-                v-for="(header, index) in props.headers"
-                :key="index"
-                class="text-center bg-primary-line text-white"
-              >
-                {{ header.text }}
-              </th>
-            </tr>
-          </template>
+      <div class="col-md-12 mt-2 mb-2">
+        <div class="scrollbar-table">
+          <base-table-custom :headers="headers" :items="listContestants">
+            <template v-slot:headers="props">
+              <tr>
+                <th
+                  v-for="(header, index) in props.headers"
+                  :key="index"
+                  class="text-center bg-primary-line text-white"
+                >
+                  {{ header.text }}
+                </th>
+              </tr>
+            </template>
 
-          <template v-slot:item="props">
-            <td class="text-center">
-              {{ (currentPage - 1) * perPage + (props.index + 1) }}
-            </td>
-            <td>{{ props.item.name }}</td>
-            <td>{{ props.item.occupation }}</td>
-            <td>{{ props.item.state }}</td>
-            <td class="text-right">{{ props.item.season }}</td>
-            <td class="text-right">{{ props.item.showNum }}</td>
-            <td class="text-center">
-              {{ convertDateDbToDateClient(props.item.airDate) }}
-            </td>
-            <td>{{ convertIsWinner(props.item.isWinner) }}</td>
-          </template>
-          <template v-slot:noRecord v-if="totalRecords == 0">
-            <td :colspan="headers.length" class="text-center no-records">
-              {{ $t("grid.no_records") }}
-            </td>
-          </template>
-        </base-table-custom>
+            <template v-slot:item="props">
+              <td class="text-center">
+                {{ (currentPage - 1) * perPage + (props.index + 1) }}
+              </td>
+              <td>{{ props.item.name }}</td>
+              <td>{{ props.item.occupation }}</td>
+              <td>{{ props.item.state }}</td>
+              <td class="text-right">{{ props.item.season }}</td>
+              <td class="text-right">{{ props.item.showNum }}</td>
+              <td class="text-center">
+                {{ convertDateDbToDateClient(props.item.airDate) }}
+              </td>
+              <td>{{ convertIsWinner(props.item.isWinner) }}</td>
+            </template>
+            <template v-slot:noRecord v-if="totalRecords == 0">
+              <td :colspan="headers.length" class="text-center no-records">
+                {{ $t("grid.no_records") }}
+              </td>
+            </template>
+          </base-table-custom>
+        </div>
       </div>
 
       <base-pagination-custom
