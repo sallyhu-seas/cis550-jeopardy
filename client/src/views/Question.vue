@@ -26,7 +26,7 @@
           </div>
 
           <bar-chart
-            :height="350"
+            :height="370"
             ref="barChart"
             :chart-data="category.chartData"
           >
@@ -44,7 +44,7 @@
           </div>
 
           <bar-chart
-            :height="350"
+            :height="370"
             ref="barChart"
             :chart-data="answer.chartData"
           >
