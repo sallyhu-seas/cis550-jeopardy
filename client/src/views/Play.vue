@@ -121,6 +121,15 @@
       </h2>
       <br />
 
+      <div class="color-white ml-2" v-if="isDisplayAnswer">
+        Your answer, <span class="font-weight-bold">{{ answer }}</span> was
+        correct! The correct answer was:
+        <span class="font-weight-bold">{{ trueAnswer }}</span
+        >. You earned
+        <span class="font-weight-bold">{{ value }}</span> points. Pick a new
+        question when you're ready.
+      </div>
+
       <div class="color-white ml-2" v-if="isDisplayOverride && times > 0">
         Your answer, <span class="font-weight-bold">{{ answer }}</span> was
         incorrect. The correct answer was:
@@ -155,6 +164,7 @@
             class="input-group-alternative"
             placeholder="Enter your answer"
             v-model="answer"
+            :disabled="isSubmitted"
           ></base-input>
           <br />
         </div>
@@ -215,12 +225,14 @@ export default {
       isClickStart: false,
       isChooseQuestion: true,
       isDisplayOverride: false,
+      isDisplayAnswer: false,
       times: 3,
       answer: "",
       value: 0,
       score: 0,
       id: null,
       trueAnswer: "",
+      isSubmitted: false,
     };
   },
   created() {
@@ -272,9 +284,11 @@ export default {
         return;
       }
 
+      this.isSubmitted = true;
+
       let body = {
         id: this.id,
-        answer: this.answer,
+        answer: this.answer.replace("'", "''"),
       };
 
       PlayService.checkAnswer(body)
@@ -287,6 +301,7 @@ export default {
               });
               this.score += this.value;
               this.isDisplayOverride = false;
+              this.isDisplayAnswer = true;
             } else {
               this.$notify({
                 type: "danger",
@@ -294,6 +309,7 @@ export default {
               });
               this.score -= this.value;
               this.isDisplayOverride = true;
+              this.isDisplayAnswer = false;
             }
             this.trueAnswer = response.data.answer;
             this.isChooseQuestion = true;
@@ -313,8 +329,14 @@ export default {
         return;
       }
 
+      this.$notify({
+          type: "warning",
+          message: "You've passed this question. Please choose a question",
+        });
+
+      this.isSubmitted = true;
       this.isChooseQuestion = true;
-      this.score -= this.value;
+      //this.score -= this.value;
     },
 
     override() {
@@ -392,6 +414,8 @@ export default {
         return;
       }
 
+      this.isDisplayAnswer = false;
+      this.isSubmitted = false
       this.answer = "";
       this.isDisplayOverride = false;
       this.isChooseQuestion = false;

@@ -37,6 +37,8 @@ app.get('/winners-top-occupations', routes.getTopWinnersFromTopOccupations);
 
 app.get('/days-first-loss-first-win', routes.getDaysBetweenFirstLossAndFirstWin);
 
+app.get('/get-question-top-category-top-answer', routes.getQuestionsFromTopCategoriesOfTopAnswers);
+
 app.listen(8081, () => {
 	console.log(`Server listening on PORT 8081`);
 });

@@ -15,6 +15,11 @@ export default {
             }
         });
     },
+
+    getQuestionsFromTopCategoriesOfTopAnswers() {
+        return Apis("GET", '/get-question-top-category-top-answer');
+    },
+
     getConfigurations() {
         return Apis("GET", '/configurations');
     },

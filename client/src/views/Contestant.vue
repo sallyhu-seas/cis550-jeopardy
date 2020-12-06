@@ -12,73 +12,68 @@
             </h2>
           </h1>
         </center>
-        
-        <div style="white-space: pre-line;">{{textWithLineBreaks}}
-        </div>
-        
-        <h3>
-          {{ occupationText }}
-        </h3>
+      </div>
+    </div>
 
-        <div class="col md 12">
-          <card header-classes="bg-transparent pt-3">
-            <div slot="header" class="row align-items-center">
-              <div class="col">
-                <h6 class="text-uppercase text-muted ls-1 mb-1">Winners</h6>
-                <h5 class="h3 mb-0">By Occupation</h5>
-              </div>
+    <div class="row ml-0 mr-0">
+      <div class="col-md-6 mt-2 mb-2">
+        <card header-classes="bg-transparent pt-3">
+          <div slot="header" class="row align-items-center">
+            <div class="col">
+              <h6 class="text-uppercase text-muted ls-1 mb-1">Top 10 Winners</h6>
+              <h5 class="h3 mb-0">By Occupation</h5>
             </div>
+          </div>
 
-            <bar-chart
-              :height="350"
-              ref="barChart"
-              :chart-data="occupation.chartData"
-            >
-            </bar-chart>
-          </card>
-        </div>
-        <br>
-        <br>
+          <bar-chart
+            :height="350"
+            ref="barChart"
+            :chart-data="occupation.chartData"
+          >
+          </bar-chart>
+        </card>
       </div>
 
-      <div class="col-md-12 mt-2 mb-2">
-        <h3>
-          {{ stateText }}
-        </h3>
-
-        <div class="col md 12">
-          <card header-classes="bg-transparent pt-3">
-            <div slot="header" class="row align-items-center">
-              <div class="col">
-                <h6 class="text-uppercase text-muted ls-1 mb-1">Top Winners</h6>
-                <h5 class="h3 mb-0">By Longest, Consecutive Winning Streak</h5>
-              </div>
+      <div class="col-md-6 mt-2 mb-2">
+        <card header-classes="bg-transparent pt-3">
+          <div slot="header" class="row align-items-center">
+            <div class="col">
+              <h6 class="text-uppercase text-muted ls-1 mb-1">Top 10 Winners</h6>
+              <h5 class="h3 mb-0">By Longest, Consecutive Winning Streak</h5>
             </div>
+          </div>
 
-            <bar-chart :height="350" ref="barChart" :chart-data="state.chartData">
-            </bar-chart>
-          </card>
-        </div>
+          <bar-chart :height="350" ref="barChart" :chart-data="state.chartData">
+          </bar-chart>
+        </card>
         <br>
         <br>
-      </div>
-
-      <div class="col-md-12 mt-2 mb-2">
-        <center>
-        <Tableau
-          url="https://public.tableau.com/views/Book3_16070445711590/Dashboard1?:language=en&:display_count=y&:origin=viz_share_link"
-          width="1650px"
-          ref="tableau"
-        >
-        </Tableau>
-        </center>
       </div>
     </div>
 
     <div class="col-md-12 mt-2 mb-2">
-      <h2>
-        {{ 'Example of some complex queries.' }}
-      </h2>
+      <center>
+      <Tableau
+        url="https://public.tableau.com/views/Book3_16070445711590/Dashboard1?:language=en&:display_count=y&:origin=viz_share_link"
+        width="1650px"
+        ref="tableau"
+      >
+      </Tableau>
+      </center>
+    </div>
+
+    <div class="row ml-0 mr-0">
+      <div class="col-md-6 mt-2 mb-2">
+        <h2>
+          {{ 'Top 3 Winners from Top 10 Occupations' }}
+        </h2>
+      </div>
+
+      <div class="col-md-6 mt-2 mb-2">
+        <h2>
+          {{ 'Longest Days to First Win after First Loss' }}
+        </h2>
+      </div>
     </div>
 
     <div class="row ml-0 mr-0">
@@ -110,6 +105,7 @@
           </div>
         </card>
       </div>
+
       <div class="col-md-6 mt-2 mb-2">
         <card header-classes="bg-transparent pt-3">
           <div class="scrollbar-table">
@@ -141,6 +137,7 @@
         </card>
       </div>
     </div>
+
   </div>
 </template>
 <script>
@@ -203,7 +200,7 @@ export default {
   methods: {
     getWinnersByOccupation() {
       let params = {
-        take: 20,
+        take: 10,
       };
 
       ContestantService.getTopWinnersByOccupation(params)
@@ -235,7 +232,7 @@ export default {
 
     getWinnersByState() {
       let params = {
-        take: 20,
+        take: 10,
       };
 
       ContestantService.getTopWinnersByState(params)
