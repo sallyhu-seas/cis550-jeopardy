@@ -2,8 +2,8 @@ var config = require("./db-config.js");
 var oracledb = require("oracledb");
 
 oracledb.initOracleClient({
-  libDir: '/Users/datnguyen/Project550/instantclient_19_8' // Dat's path
-  // libDir: 'C:\\Oracle\\instantclient_19_8' // Sally's path
+  // libDir: '/Users/datnguyen/Project550/instantclient_19_8' // Dat's path
+  libDir: 'C:\\Oracle\\instantclient_19_8' // Sally's path
 });
 
 oracledb.autoCommit = true;
@@ -640,7 +640,8 @@ async function checkAnswer(req, res) {
     FROM    JEOPARDY_EPISODE EP
             INNER JOIN JEOPARDY_QA QA ON EP.QID = QA.QID
     WHERE   EP.EID = ${id}
-            AND LOWER(answer) LIKE '%${answer}%'`;
+            AND LOWER(answer) LIKE '%${answer}%'
+            AND LENGTH(answer)/2 <= LENGTH('${answer}')`;
   try {
     const result = await connection.execute(query, [], {
       outFormat: oracledb.OUT_FORMAT_OBJECT,
