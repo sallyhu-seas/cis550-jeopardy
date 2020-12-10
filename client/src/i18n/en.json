@@ -12,7 +12,7 @@
     "alert_invalid": "Login information invalid",
     "alert_otp": "OTP code cannot be empty",
     "alert_totp": "TOTP code cannot be empty",
-    "not_exist_username": "Username is not existed",
+    "not_exist_username": "Username does not exist",
     "password_is_not_correct": "Password is not correct. You login fail (*) times. If you login fail more than (**) times, your account will be locked.",
     "inactive_user": "User is not active",
     "locked_user": "User is locked",
