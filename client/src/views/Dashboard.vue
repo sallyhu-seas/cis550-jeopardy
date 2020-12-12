@@ -53,9 +53,6 @@
       </div>
     </div>
 
-    <!-- <h2 class="color-white text-center" style="padding-top: 105px">
-      {{ homeText }}
-    </h2> -->
   </div>
 </template>
 <script>

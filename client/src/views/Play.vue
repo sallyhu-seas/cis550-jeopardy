@@ -353,7 +353,7 @@ export default {
       ) {
         this.$notify({
           type: "danger",
-          message: "Please fill the information",
+          message: "Please select Season, Airdate, and Round",
         });
         return;
       }
