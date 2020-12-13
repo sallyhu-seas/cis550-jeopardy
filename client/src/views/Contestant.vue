@@ -54,7 +54,7 @@
     <div class="col-md-12 mt-2 mb-2">
       <center>
       <Tableau
-        url="https://public.tableau.com/views/Book3_16070445711590/Dashboard1?:language=en&:display_count=y&:origin=viz_share_link"
+        url="https://public.tableau.com/views/Book11_16078737954420/Dashboard1?:language=en&:display_count=y&publish=yes&:origin=viz_share_link"
         width="1650px"
         ref="tableau"
       >
