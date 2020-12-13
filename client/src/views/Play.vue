@@ -332,7 +332,7 @@ export default {
 
       this.$notify({
           type: "warning",
-          message: "You've passed this question. Please choose a question",
+          message: "You've passed this question. Please choose a different question",
         });
 
       this.isSubmitted = true;

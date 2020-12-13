@@ -10,7 +10,7 @@
               {{ "Let's Query!" }}
             </h1>
             <h3>
-              {{ "Take a look closer look at information about real contestants that appeared on Jeopardy!." }}
+              {{ "Take a closer look at information about real contestants that appeared on Jeopardy!." }}
             </h3>
             <h4>
               {{ "Click the \'Reset Filter\' button before beginning a new search." }}
