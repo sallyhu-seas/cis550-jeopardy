@@ -65,13 +65,13 @@
     <div class="row ml-0 mr-0">
       <div class="col-md-6 mt-2 mb-2">
         <h2>
-          {{ 'Top 3 Winners from Top 10 Occupations' }}
+          {{ 'Top 3 Winners from each of the Top 20 Occupations' }}
         </h2>
       </div>
 
       <div class="col-md-6 mt-2 mb-2">
         <h2>
-          {{ 'Longest Days to First Win after First Loss' }}
+          {{ 'The Most Persevering Contestants!' }}
         </h2>
       </div>
     </div>
@@ -183,7 +183,7 @@ export default {
           text: "Name",
         },
         {
-          text: "Days Needed to Win",
+          text: "Days Between First Loss and First Win",
         },
       ],
       listWinners: [],
