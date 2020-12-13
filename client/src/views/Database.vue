@@ -9,6 +9,12 @@
             <h1>
               {{ "Let's Query!" }}
             </h1>
+            <h3>
+              {{ "Take a look closer look at information about real contestants that appeared on Jeopardy!." }}
+            </h3>
+            <h4>
+              {{ "Click the \'Reset Filter\' button before beginning a new search." }}
+            </h4>
           </center>
           <br>
         <div class="row">

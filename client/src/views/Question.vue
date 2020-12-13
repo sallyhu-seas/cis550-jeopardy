@@ -71,7 +71,7 @@
         {{ 'Questions from Top Categories of Top Answers' }}
       </h2>
       <h4>
-        {{ 'Take a closer look at where the top answers come from! See below for the top 10 categories that contain the highest number of the top 20 answers and what the corresponding questions are.' }}
+        {{ 'Take a closer look at where the top answers come from! See below for the top 10 categories that correspond with the highest number of top 20 answers and what the corresponding questions are.' }}
       </h4>
     </div>
 
