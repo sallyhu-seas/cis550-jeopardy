@@ -114,12 +114,13 @@
         </div>
       </div>
     </div>
-    <br />
     <div style="text-align: center" v-if="isClickStart">
-      <h2 class="pt-3 pl-3 color-black" style="height: 80px">
+      <h4 class="pt-1 pl-3 color-white" style="height: 20px" >
+        Do NOT submit your answer in the form of a question. Simply provide your guess.
+      </h4>
+      <h3 class="pt-2 pl-3 color-white" style="height: 40px; background-color:gray;" >
         {{ question }}
-      </h2>
-      <br />
+      </h3>
 
       <div class="color-white ml-2" v-if="isDisplayAnswer">
         Your answer, <span class="font-weight-bold">{{ answer }}</span> was
