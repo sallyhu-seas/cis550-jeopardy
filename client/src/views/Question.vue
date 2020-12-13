@@ -20,8 +20,8 @@
         <card header-classes="bg-transparent pt-3">
           <div slot="header" class="row align-items-center">
             <div class="col">
-              <h6 class="text-uppercase text-muted ls-1 mb-1">Category</h6>
-              <h5 class="h3 mb-0">Top 10 Most Popular</h5>
+              <h6 class="text-uppercase text-muted ls-1 mb-1">Top 10 Most Popular</h6>
+              <h5 class="h3 mb-0">Categories</h5>
             </div>
           </div>
 
@@ -38,8 +38,8 @@
         <card header-classes="bg-transparent pt-3">
           <div slot="header" class="row align-items-center">
             <div class="col">
-              <h6 class="text-uppercase text-muted ls-1 mb-1">Answer</h6>
-              <h5 class="h3 mb-0">Top 10 Most Popular</h5>
+              <h6 class="text-uppercase text-muted ls-1 mb-1">Top 10 Most Popular</h6>
+              <h5 class="h3 mb-0">Answers</h5>
             </div>
           </div>
 
@@ -70,6 +70,9 @@
       <h2>
         {{ 'Questions from Top Categories of Top Answers' }}
       </h2>
+      <h4>
+        {{ 'Take a closer look at where the top answers come from! See below for the top 10 categories that contain the highest number of the top 20 answers and what the corresponding questions are.' }}
+      </h4>
     </div>
 
     <div class="col-md-12 mt-2 mb-2">
